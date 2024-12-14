@@ -20,7 +20,9 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "lwip.h"
-
+#include "semphr.h"
+#include "queue_manager.h"
+#include "adc_sensors.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -65,7 +67,28 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 void StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
+QueueHandle_t sensorQueue;
+void QueueInit(void){
+	sensorQueue = xQueueCreate(1,sizeof(HumiditySensorData));
 
+	if(sensorQueue == NULL){
+		printf("stiva pentru senzor umiditate nu a putut fi intializata");
+		while(1){};
+	}
+
+	//ledQueue = xQueueCreate(10,sizeof(LedControl));
+	//if(ledQueue == NULL)
+	//{
+		//printf("siva leduri nu a putut fi initializata");
+		//while(1){};
+	//}
+
+}
+int _write(int file, char *ptr, int len)
+{
+	HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 100);
+	return len;
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -87,7 +110,7 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
+  QueueInit();
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -103,6 +126,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
+  humiditySensorAdcInit();
+
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -129,7 +154,7 @@ int main(void)
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
+  init_humidity_task();
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -342,6 +367,7 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
+
 void StartDefaultTask(void *argument)
 {
   /* init code for LWIP */

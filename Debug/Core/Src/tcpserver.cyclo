@@ -1,3 +1,4 @@
-../Core/Src/tcpserver.c:13:13:process_http_request	3
-../Core/Src/tcpserver.c:47:13:tcp_thread	5
-../Core/Src/tcpserver.c:109:6:tcpserver_init	1
+../Core/Src/tcpserver.c:12:14:get_humidity_value	2
+../Core/Src/tcpserver.c:23:13:process_http_request	4
+../Core/Src/tcpserver.c:69:13:tcp_thread	5
+../Core/Src/tcpserver.c:131:6:tcpserver_init	1

@@ -1,0 +1,4 @@
+../Core/Src/adc_sensors.c:4:6:humiditySensorAdcInit	1
+../Core/Src/adc_sensors.c:27:10:humiditySensorReadValue	2
+../Core/Src/adc_sensors.c:37:6:humidity_read_task	4
+../Core/Src/adc_sensors.c:66:6:init_humidity_task	1
