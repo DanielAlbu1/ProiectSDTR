@@ -24,39 +24,72 @@ static void process_http_request(const char *request, char *response)
 {
     if (strstr(request, "GET / HTTP/1.1") != NULL)
     {
-    	 /// Obținem valoarea umidității din coadă
+        // Obținem valoarea umidității
         float humidity = get_humidity_value();
 
-        // Dacă nu avem o valoare validă (de exemplu, dacă nu sunt date în coadă), trimitem un mesaj de eroare
-        if (humidity < 0)
-        {
-            humidity = -1.0f; // Setăm valoare invalidă
-        }
-
-        // Pregătește răspunsul cu valoarea umidității
+        // Pregătește răspunsul
         char humidity_str[100];
-       // snprintf(humidity_str, sizeof(humidity_str), "<html><body><h1>Humidity: %.2f%%</h1></body></html>", humidity);
         snprintf(humidity_str, sizeof(humidity_str), "%.2f", humidity);
+
         const char *http_response =
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/html\r\n"
             "Connection: close\r\n\r\n";
         strcpy(response, http_response);
-        strcat(response, humidity_str);  // Concatenate valoarea umidității la răspuns
+        strcat(response, humidity_str);
     }
     else if (strstr(request, "POST / HTTP/1.1") != NULL)
     {
-        // Răspuns pentru cererea POST
-        const char *http_response =
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: text/html\r\n"
-            "Connection: close\r\n\r\n"
-            "<html><body><h1>Data received via POST!</h1></body></html>";
-        strcpy(response, http_response);
+        // Găsește corpul cererii
+        const char *body = strstr(request, "\r\n\r\n");
+        if (body != NULL)
+        {
+            body += 4;
+
+            LedMessage message;
+            if (strstr(body, "led=1") != NULL)
+            {
+                message.led = LED1;
+            }
+            else if (strstr(body, "led=2") != NULL)
+            {
+                message.led = LED2;
+            }
+            else if (strstr(body, "led=3") != NULL)
+            {
+                message.led = LED3;
+            }
+            else
+            {
+                snprintf(response, 256, "HTTP/1.1 400 Bad Request\r\n\r\nInvalid LED ID");
+                return;
+            }
+
+            if (strstr(body, "toggle=1") != NULL)
+            {
+                message.toggle = 1;
+            }
+            else
+            {
+                snprintf(response, 256, "HTTP/1.1 400 Bad Request\r\n\r\nMissing toggle value");
+                return;
+            }
+
+            if (xQueueSendToBack(ledQueue, &message, 0) != pdTRUE)
+            {
+                snprintf(response, 256, "HTTP/1.1 500 Internal Server Error\r\n\r\nQueue full");
+                return;
+            }
+
+            snprintf(response, 256, "HTTP/1.1 200 OK\r\n\r\nLED %d toggled", message.led);
+        }
+        else
+        {
+            snprintf(response, 256, "HTTP/1.1 400 Bad Request\r\n\r\nNo body found");
+        }
     }
     else
     {
-        // Răspuns pentru alte cereri (404 Not Found)
         const char *http_response =
             "HTTP/1.1 404 Not Found\r\n"
             "Connection: close\r\n\r\n"
@@ -64,6 +97,7 @@ static void process_http_request(const char *request, char *response)
         strcpy(response, http_response);
     }
 }
+
 
 // Funcția principală a serverului TCP
 static void tcp_thread(void *arg)

@@ -1,0 +1,2 @@
+../Core/Src/led_control.c:10:6:init_led_control_task	2
+../Core/Src/led_control.c:31:6:led_control_task	8

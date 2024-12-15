@@ -23,6 +23,7 @@
 #include "semphr.h"
 #include "queue_manager.h"
 #include "adc_sensors.h"
+#include "led_control.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -68,6 +69,7 @@ void StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 QueueHandle_t sensorQueue;
+
 void QueueInit(void){
 	sensorQueue = xQueueCreate(1,sizeof(HumiditySensorData));
 
@@ -75,13 +77,6 @@ void QueueInit(void){
 		printf("stiva pentru senzor umiditate nu a putut fi intializata");
 		while(1){};
 	}
-
-	//ledQueue = xQueueCreate(10,sizeof(LedControl));
-	//if(ledQueue == NULL)
-	//{
-		//printf("siva leduri nu a putut fi initializata");
-		//while(1){};
-	//}
 
 }
 int _write(int file, char *ptr, int len)
@@ -155,6 +150,7 @@ int main(void)
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
   init_humidity_task();
+  init_led_control_task();
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -377,8 +373,9 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+	 // HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 	  osDelay(200);
+
   }
   /* USER CODE END 5 */
 }
