@@ -86,7 +86,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  ../Core/Inc/led_control.h ../Core/Inc/queue_manager.h ../Core/Inc/main.h \
  ../Core/Inc/tcpserver.h ../Core/Inc/adc_sensors.h \
- ../Core/Inc/led_control.h
+ ../Core/Inc/led_control.h ../Core/Inc/i2c_lcd.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:
@@ -179,3 +179,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/tcpserver.h:
 ../Core/Inc/adc_sensors.h:
 ../Core/Inc/led_control.h:
+../Core/Inc/i2c_lcd.h:
