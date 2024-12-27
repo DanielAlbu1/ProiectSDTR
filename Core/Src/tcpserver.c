@@ -3,13 +3,14 @@
 #include "lwip/sys.h"
 #include "string.h"
 #include "stdio.h"
+#include "tcpserver.h"
 #include "queue_manager.h"
 static struct netconn *conn, *newconn;
 static struct netbuf *buf;
 char msg[512];
 char smsg[1024];
 
-static float get_humidity_value(void)
+ float get_humidity_value(void)
 {
     HumiditySensorData sensor_data;
     // Verificăm dacă valoarea există în coadă
@@ -19,6 +20,7 @@ static float get_humidity_value(void)
     }
     return -1.0f; // Dacă nu sunt date, returnăm o valoare invalidă
 }
+
 // Funcție pentru a analiza cererea HTTP
 static void process_http_request(const char *request, char *response)
 {

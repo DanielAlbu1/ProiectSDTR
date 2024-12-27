@@ -60,30 +60,79 @@ void lcd_put_cur(int row, int col)
 void lcd_init (void)
 {
 	// 4 bit initialisation
-	HAL_Delay(50);  // wait for >40ms
+	vTaskDelay(pdMS_TO_TICKS(40));  // wait for >40ms
 	lcd_send_cmd (0x30);
-	HAL_Delay(5);  // wait for >4.1ms
+	vTaskDelay(pdMS_TO_TICKS(5));   // wait for >4.1ms
 	lcd_send_cmd (0x30);
-	HAL_Delay(1);  // wait for >100us
+	vTaskDelay(pdMS_TO_TICKS(1)); // wait for >100us
 	lcd_send_cmd (0x30);
-	HAL_Delay(10);
+	vTaskDelay(pdMS_TO_TICKS(10));
 	lcd_send_cmd (0x20);  // 4bit mode
-	HAL_Delay(10);
+	vTaskDelay(pdMS_TO_TICKS(10));
 
   // dislay initialisation
 	lcd_send_cmd (0x28); // Function set --> DL=0 (4 bit mode), N = 1 (2 line display) F = 0 (5x8 characters)
-	HAL_Delay(1);
+	vTaskDelay(pdMS_TO_TICKS(1));
 	lcd_send_cmd (0x08); //Display on/off control --> D=0,C=0, B=0  ---> display off
-	HAL_Delay(1);
+	vTaskDelay(pdMS_TO_TICKS(1));
 	lcd_send_cmd (0x01);  // clear display
-	HAL_Delay(1);
-	HAL_Delay(1);
+	vTaskDelay(pdMS_TO_TICKS(1)); vTaskDelay(pdMS_TO_TICKS(1));
 	lcd_send_cmd (0x06); //Entry mode set --> I/D = 1 (increment cursor) & S = 0 (no shift)
-	HAL_Delay(1);
+	vTaskDelay(pdMS_TO_TICKS(1));
 	lcd_send_cmd (0x0C); //Display on/off control --> D = 1, C and B = 0. (Cursor and blink, last two bits)
 }
 
 void lcd_send_string (char *str)
 {
 	while (*str) lcd_send_data (*str++);
+}
+void init_lcd_control_task(void)
+{
+
+
+    // Atributele task-ului
+    osThreadAttr_t lcdTask_attributes = {
+        .name = "lcdControlTask",
+        .stack_size = 512 * 4,
+        .priority = (osPriority_t)osPriorityNormal,
+    };
+
+    // Creăm task-ul pentru controlul LED-urilor
+    osThreadNew(lcd_control_task, NULL, &lcdTask_attributes);
+}
+void lcd_control_task(void *argument)
+{	lcd_init();
+HumiditySensorData sensor_data;
+
+char adc_str[16];    // Buffer pentru string-ul valorii ADC
+char humidity_str[16]; // Buffer pentru string-ul valorii de umiditate
+	while(1)
+	{
+
+
+
+	    if (xQueuePeek(sensorQueue, &sensor_data, 0) == pdTRUE)
+	    {
+		    // Conversia valorilor în string
+		    sprintf(adc_str, "ADC: %d", sensor_data.adc_value);         // Conversie pentru int
+		    sprintf(humidity_str, "Hum: %.2f%%", sensor_data.humidity); // Conversie pentru float cu 2 zecimale
+
+		    lcd_clear();
+		    // Afișarea pe LCD
+		    lcd_put_cur(0, 0);
+		    lcd_send_string(adc_str);
+		    lcd_put_cur(1, 0);
+		    lcd_send_string(humidity_str);
+	    }
+
+
+
+	    vTaskDelay(1000);
+
+
+
+
+	}
+	  vTaskDelete(NULL);
+
 }

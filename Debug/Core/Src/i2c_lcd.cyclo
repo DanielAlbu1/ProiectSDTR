@@ -3,4 +3,6 @@
 ../Core/Src/i2c_lcd.c:35:6:lcd_clear	2
 ../Core/Src/i2c_lcd.c:44:6:lcd_put_cur	3
 ../Core/Src/i2c_lcd.c:60:6:lcd_init	1
-../Core/Src/i2c_lcd.c:86:6:lcd_send_string	2
+../Core/Src/i2c_lcd.c:85:6:lcd_send_string	2
+../Core/Src/i2c_lcd.c:89:6:init_lcd_control_task	1
+../Core/Src/i2c_lcd.c:103:6:lcd_control_task	2

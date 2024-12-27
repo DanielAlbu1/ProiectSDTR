@@ -20,8 +20,7 @@ typedef enum {
     LED3
 } LedId;
 
-// Coada globală pentru mesaje
-extern QueueHandle_t ledQueue;
+
 
 typedef struct {
     LedId led;      // LED-ul vizat (LED1, LED2, LED3)

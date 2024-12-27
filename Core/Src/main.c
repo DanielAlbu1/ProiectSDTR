@@ -127,12 +127,8 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   humiditySensorAdcInit();
-  lcd_init ();
-  	  lcd_clear();
-    lcd_put_cur(0, 0);
-    lcd_send_string ("O iubesc");
-    lcd_put_cur(1, 0);
-    lcd_send_string("pe claudia");
+  //lcd_init ();
+
 
   /* USER CODE BEGIN 2 */
 
@@ -162,6 +158,7 @@ int main(void)
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
   init_humidity_task();
   init_led_control_task();
+ // init_lcd_control_task();
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -424,10 +421,28 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN 5 */
   tcpserver_init();
   /* Infinite loop */
+  lcd_init();
+  HumiditySensorData sensor_data;
+
+  char adc_str[16];    // Buffer pentru string-ul valorii ADC
+  char humidity_str[16]; // Buffer pentru string-ul valorii de umiditate
   for(;;)
   {
-	 // HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-	  osDelay(200);
+	  if (xQueuePeek(sensorQueue, &sensor_data, 0) == pdTRUE)
+		    {
+			    // Conversia valorilor în string
+		    sprintf(adc_str, "ADC: %d", sensor_data.adc_value);         // Conversie pentru int
+			    sprintf(humidity_str, "Hum: %.2f%%", sensor_data.humidity); // Conversie pentru float cu 2 zecimale
+	//
+			    lcd_clear();
+			    // Afișarea pe LCD
+			    lcd_put_cur(0, 0);
+			    lcd_send_string(adc_str);
+			    lcd_put_cur(1, 0);
+			    lcd_send_string(humidity_str);
+		    }
+
+		    vTaskDelay(1000);
 
   }
   /* USER CODE END 5 */

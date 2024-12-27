@@ -14,6 +14,10 @@
 #include "lwip.h"
 #include "tcpserver.h"
 #include "semphr.h"
+typedef struct {
+    float humidity; // Valoarea senzorului de umiditate
+    int adc_value;
+} HumiditySensorData;
 void humiditySensorAdcInit(void);
 uint16_t humiditySensorReadValue(void);
 void init_humidity_task(void);
