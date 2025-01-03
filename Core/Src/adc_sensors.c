@@ -3,63 +3,55 @@
 
 void humiditySensorAdcInit(void){
 
-	//activare ceas pentru GPIOA SI ADC1
-
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
 	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
 
-	//CONFIGURARE PA3 CA INTRARE ANALOGICA
 	GPIOA->MODER |= GPIO_MODER_MODER3;
 	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR3);
 
-	//CONFIGURARE ADC1
-	ADC1->CR2 = 0;//RESETARE REGISTRU CONTROL
-	ADC1->CR2 |= ADC_CR2_ADON; //ACTIVARE ADC
-	ADC1->SQR3 = 3; //CANALUL 3 IN PRIMA POZITIE DE SECVENTA DE CONVERSIE
+	ADC1->CR2 = 0;
+	ADC1->CR2 |= ADC_CR2_ADON;
+	ADC1->SQR3 = 3;
 
-	ADC1->SMPR2 |= ADC_SMPR2_SMP3;//SETARE TIMP ESNATIONARE CANALUL 3
+	ADC1->SMPR2 |= ADC_SMPR2_SMP3;
 	ADC1->CR1 = 0;
-	ADC1->CR2 |= ADC_CR2_EXTSEL;//SETARE DECLANSATOR SOFTWARE
-	ADC1->CR2 |= ADC_CR2_EXTEN_0; //ACTIVARE DECLANSATOR SOFTWARE
+	ADC1->CR2 |= ADC_CR2_EXTSEL;
+	ADC1->CR2 |= ADC_CR2_EXTEN_0;
 
 }
 
 uint16_t humiditySensorReadValue(void){
 
-	ADC1->CR2 |= ADC_CR2_SWSTART; //start conversie
+	ADC1->CR2 |= ADC_CR2_SWSTART;
 
-	while(!(ADC1->SR & ADC_SR_EOC));//ASTEPTARE FINALIZARE CONVERSIE
+	while(!(ADC1->SR & ADC_SR_EOC));
 
 	return ADC1 -> DR;
-
 
 }
 void humidity_read_task(void *argument)
 {
 	while (1)
 	    {
-	        // Citește valoarea ADC de la senzorul de umiditate
-	        int adc_value = humiditySensorReadValue();  // Funcția care citește ADC-ul senzorului de umiditate
+			PrintTaskTiming("ADC_start");
+	        int adc_value = humiditySensorReadValue();
 
-	        // Asigură-te că valoarea ADC este între 1200 și 4000
 	        if (adc_value < 1200) adc_value = 1200;
 	        if (adc_value > 4000) adc_value = 4000;
 
-	        // Calculează valoarea umidității (în procente)
-	        float humidity = (float)(4000 - adc_value) / (4000 - 1200) * 100;  // Transforma valoarea ADC într-un procent
+	        float humidity = (float)(4000 - adc_value) / (4000 - 1200) * 100;
 
-	        // Creează structura cu valorile citite
 	        HumiditySensorData sensorData;
-	        sensorData.humidity = humidity;       // Setează umiditatea
-	        sensorData.adc_value = adc_value;    // Setează valoarea ADC
+	        sensorData.humidity = humidity;
+	        sensorData.adc_value = adc_value;
 
-	        // Pune structura pe coadă (suprascrie orice valoare anterioară)
+
 	        if (xQueueOverwrite(sensorQueue, &sensorData) != pdTRUE)
 	        {
 	            printf("Failed to send humidity data to queue\n");
 	        }
 
-	        // Așteaptă 5 secunde înainte de a citi din nou
+	        PrintTaskTiming("ADC_end");
 	        vTaskDelay(pdMS_TO_TICKS(1000));
 	    }
 }
@@ -71,6 +63,47 @@ void init_humidity_task(void)
         .priority = osPriorityNormal,
     };
 
-    // Crează task-ul care citește umiditatea la fiecare 5 secunde
+
     osThreadNew(humidity_read_task, NULL, &humidityTask_attributes);
+}
+
+void pump_control_task(void *argument)
+{
+
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+
+    HumiditySensorData sensor_data;
+
+    while (1)
+    {
+    	PrintTaskTiming("PumpControl_start");
+        if (xQueuePeek(sensorQueue, &sensor_data, 0) == pdTRUE)
+        {
+            if (sensor_data.humidity < 50.0)
+            {
+
+                HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+               // printf("Pompa oprită (Umiditate: %.2f%%)\n", sensor_data.humidity);
+            }
+            else
+            {
+
+                HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_SET);
+               // printf("Pompa pornită (Umiditate: %.2f%%)\n", sensor_data.humidity);
+            }
+        }
+        PrintTaskTiming("PumpControl_start");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+void init_pump_task(void)
+{
+    osThreadAttr_t pumpTask_attributes = {
+        .name = "pumpTask",
+        .stack_size = 512 * 4,
+        .priority = (osPriority_t) osPriorityLow,
+    };
+
+    osThreadNew(pump_control_task, NULL, &pumpTask_attributes);
 }

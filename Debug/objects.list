@@ -6,6 +6,7 @@
 "./Core/Src/stm32f7xx_hal_msp.o"
 "./Core/Src/stm32f7xx_hal_timebase_tim.o"
 "./Core/Src/stm32f7xx_it.o"
+"./Core/Src/sys_info.o"
 "./Core/Src/syscalls.o"
 "./Core/Src/sysmem.o"
 "./Core/Src/system_stm32f7xx.o"

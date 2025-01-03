@@ -49,6 +49,8 @@
 ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:3951:13:xTaskPriorityInherit	7
 ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:4038:13:xTaskPriorityDisinherit	7
 ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:4118:7:vTaskPriorityDisinheritAfterTimeout	10
+../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:4283:15:prvWriteNameToBuffer	2
+../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:4309:7:vTaskList	8
 ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:4533:12:uxTaskResetEventItemValue	1
 ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:4549:15:pvTaskIncrementMutexHeldCount	2
 ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c:4566:11:ulTaskNotifyTake	5

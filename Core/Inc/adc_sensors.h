@@ -22,4 +22,6 @@ void humiditySensorAdcInit(void);
 uint16_t humiditySensorReadValue(void);
 void init_humidity_task(void);
 void humidity_read_task(void *argument);
+void pump_control_task(void *argument);
+void init_pump_task(void);
 #endif /* INC_ADC_SENSORS_H_ */

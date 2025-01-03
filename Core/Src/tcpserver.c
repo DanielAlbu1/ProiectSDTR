@@ -13,23 +13,20 @@ char smsg[1024];
  float get_humidity_value(void)
 {
     HumiditySensorData sensor_data;
-    // Verificăm dacă valoarea există în coadă
+
     if (xQueuePeek(sensorQueue, &sensor_data, 0) == pdTRUE)
     {
-        return sensor_data.humidity; // Returnăm valoarea umidității
+        return sensor_data.humidity;
     }
-    return -1.0f; // Dacă nu sunt date, returnăm o valoare invalidă
+    return -1.0f;
 }
 
-// Funcție pentru a analiza cererea HTTP
 static void process_http_request(const char *request, char *response)
 {
     if (strstr(request, "GET / HTTP/1.1") != NULL)
     {
-        // Obținem valoarea umidității
         float humidity = get_humidity_value();
 
-        // Pregătește răspunsul
         char humidity_str[100];
         snprintf(humidity_str, sizeof(humidity_str), "%.2f", humidity);
 
@@ -42,7 +39,7 @@ static void process_http_request(const char *request, char *response)
     }
     else if (strstr(request, "POST / HTTP/1.1") != NULL)
     {
-        // Găsește corpul cererii
+
         const char *body = strstr(request, "\r\n\r\n");
         if (body != NULL)
         {
@@ -101,50 +98,46 @@ static void process_http_request(const char *request, char *response)
 }
 
 
-// Funcția principală a serverului TCP
+
 static void tcp_thread(void *arg)
 {
     err_t err, accept_err;
 
-    // Creează o conexiune TCP
+
     conn = netconn_new(NETCONN_TCP);
 
     if (conn != NULL)
     {
-        // Leagă conexiunea de portul 80 (HTTP default)
+
         err = netconn_bind(conn, IP_ADDR_ANY, 80);
 
         if (err == ERR_OK)
         {
-            // Intră în modul de ascultare
+
             netconn_listen(conn);
 
             while (1)
             {
-                // Acceptă o nouă conexiune
+            	PrintTaskTiming("TCP_start");
                 accept_err = netconn_accept(conn, &newconn);
 
                 if (accept_err == ERR_OK)
                 {
-                    // Primește date de la client
+
                     while (netconn_recv(newconn, &buf) == ERR_OK)
                     {
-                        // Procesează cererea HTTP
-                        strncpy(msg, buf->p->payload, buf->p->len);  // Extrage cererea
 
-                        // Print pentru debug
-                        printf("Received request: %s\n", msg);
+                        strncpy(msg, buf->p->payload, buf->p->len);
 
-                        // Pregătește răspunsul HTTP
+
+                        //printf("Received request: %s\n", msg);
+
                         process_http_request(msg, smsg);
 
-                        // Trimite răspunsul la client
                         netconn_write(newconn, smsg, strlen(smsg), NETCONN_COPY);
 
-                        // Curăță bufferul
                         netbuf_delete(buf);
 
-                        // Închide și șterge conexiunea după fiecare răspuns
                         netconn_close(newconn);
                         netconn_delete(newconn);
                     }
@@ -153,6 +146,7 @@ static void tcp_thread(void *arg)
                 {
                     printf("Error accepting connection\n");
                 }
+                PrintTaskTiming("TCP_end");
             }
         }
         else
@@ -163,8 +157,8 @@ static void tcp_thread(void *arg)
     }
 }
 
-// Funcția de inițializare
+
 void tcpserver_init(void)
 {
-    sys_thread_new("tcp_thread", tcp_thread, NULL, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
+    sys_thread_new("tcp_thread", tcp_thread, NULL, DEFAULT_THREAD_STACKSIZE, osPriorityRealtime);
 }
