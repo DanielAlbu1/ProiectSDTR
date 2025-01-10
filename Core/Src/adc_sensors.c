@@ -92,7 +92,7 @@ void pump_control_task(void *argument)
                // printf("Pompa pornită (Umiditate: %.2f%%)\n", sensor_data.humidity);
             }
         }
-        PrintTaskTiming("PumpControl_start");
+        PrintTaskTiming("PumpControl_end");
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
@@ -102,7 +102,7 @@ void init_pump_task(void)
     osThreadAttr_t pumpTask_attributes = {
         .name = "pumpTask",
         .stack_size = 512 * 4,
-        .priority = (osPriority_t) osPriorityLow,
+        .priority = (osPriority_t) osPriorityNormal,
     };
 
     osThreadNew(pump_control_task, NULL, &pumpTask_attributes);

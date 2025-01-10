@@ -15,13 +15,6 @@ I2C_HandleTypeDef hi2c2;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
@@ -81,7 +74,6 @@ int main(void)
   osKernelInitialize();
 
 
- // defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
   init_pump_task();
   init_humidity_task();
   init_led_control_task();
@@ -256,23 +248,7 @@ static void MX_GPIO_Init(void)
 
 }
 
-void StartDefaultTask(void *argument)
-{
 
-  HumiditySensorData sensor_data;
-
-
-  for(;;)
-  {
-	  PrintTaskTiming("default_start");
-	  if (xQueuePeek(sensorQueue, &sensor_data, 0) == pdTRUE)
-		    {
-
-		    }
-	  PrintTaskTiming("default_end");
-	  vTaskDelay(500);
-  }
-}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
