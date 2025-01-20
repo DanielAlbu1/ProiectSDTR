@@ -38,7 +38,7 @@ void led_control_task(void *argument)
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
 
     while (1) {
-    	PrintTaskTiming("LED_start");
+    //	PrintTaskTiming("LED_start");
         if (xQueueReceive(ledQueue, &message, portMAX_DELAY) == pdTRUE) {
             uint8_t led_index = (uint8_t)message.led;
 
@@ -56,6 +56,6 @@ void led_control_task(void *argument)
 
             }
         }
-        PrintTaskTiming("LED_end");
+     //   PrintTaskTiming("LED_end");
     }
 }

@@ -118,7 +118,7 @@ static void tcp_thread(void *arg)
 
             while (1)
             {
-            	PrintTaskTiming("TCP_start");
+            	//PrintTaskTiming("TCP_start");
                 accept_err = netconn_accept(conn, &newconn);
 
                 if (accept_err == ERR_OK)
@@ -146,7 +146,7 @@ static void tcp_thread(void *arg)
                 {
                     printf("Error accepting connection\n");
                 }
-                PrintTaskTiming("TCP_end");
+             //   PrintTaskTiming("TCP_end");
             }
         }
         else

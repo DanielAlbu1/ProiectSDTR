@@ -1,6 +1,9 @@
-../Core/Src/adc_sensors.c:4:6:humiditySensorAdcInit	1
-../Core/Src/adc_sensors.c:23:10:humiditySensorReadValue	2
-../Core/Src/adc_sensors.c:32:6:humidity_read_task	4
-../Core/Src/adc_sensors.c:58:6:init_humidity_task	1
-../Core/Src/adc_sensors.c:70:6:pump_control_task	3
-../Core/Src/adc_sensors.c:100:6:init_pump_task	1
+../Core/Src/adc_sensors.c:10:6:Timer3_Init	1
+../Core/Src/adc_sensors.c:26:6:DWT_Init	1
+../Core/Src/adc_sensors.c:33:6:TIM3_IRQHandler	2
+../Core/Src/adc_sensors.c:44:6:humiditySensorAdcInit	1
+../Core/Src/adc_sensors.c:63:10:humiditySensorReadValue	2
+../Core/Src/adc_sensors.c:72:6:humidity_read_task	3
+../Core/Src/adc_sensors.c:102:6:init_humidity_task	1
+../Core/Src/adc_sensors.c:115:6:pump_control_task	3
+../Core/Src/adc_sensors.c:151:6:init_pump_task	1

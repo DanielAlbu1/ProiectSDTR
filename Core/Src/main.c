@@ -134,6 +134,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
+      HAL_NVIC_EnableIRQ(TIM3_IRQn);
 }
 
 

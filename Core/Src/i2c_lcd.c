@@ -92,7 +92,7 @@ void init_lcd_control_task(void)
     osThreadAttr_t lcdTask_attributes = {
         .name = "lcdControlTask",
         .stack_size = 512 * 4,
-        .priority = (osPriority_t)osPriorityNormal,
+        .priority = (osPriority_t)osPriorityNormal7,
     };
 
 
@@ -104,32 +104,32 @@ HumiditySensorData sensor_data;
 
 char adc_str[16];
 char humidity_str[16];
+//lcd_clear();
 	while(1)
 	{
-		PrintTaskTiming("LCD_start");
-	    if (xQueuePeek(sensorQueue, &sensor_data, 0) == pdTRUE)
+		//PrintTaskTiming("LCD_start");
+	    if (xQueuePeek(sensorQueue, &sensor_data, pdMS_TO_TICKS(10)) == pdTRUE)
 	    {
 
 
 		    sprintf(adc_str, "ADC: %d", sensor_data.adc_value);
 		    sprintf(humidity_str, "Hum: %.2f%%", sensor_data.humidity);
 
-		    lcd_clear();
+		    //lcd_clear();
 
 		    lcd_put_cur(0, 0);
 		    lcd_send_string(adc_str);
 		    lcd_put_cur(1, 0);
 		    lcd_send_string(humidity_str);
 	    }
-	    PrintTaskTiming("LCD_end");
+	  //  PrintTaskTiming("LCD_end");
 
 
-	    vTaskDelay(1000);
+	    vTaskDelay(pdMS_TO_TICKS(200));
 
 
 
 
 	}
-	  vTaskDelete(NULL);
 
 }
